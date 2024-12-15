@@ -22,7 +22,7 @@ for _ in range(minion_count):
         os.execve('./minion', ['./minion', str(sleep_time)], os.environ)
     else:
         child_pids.append(child_pid)
-        print(f"Gru[{gru_pid}]: process created. PID {child_pid}.")
+        print(f"Gru[{gru_pid}]: process created. PID {child_pid}.", flush=True)
 
 while child_pids:
     try:
@@ -32,7 +32,7 @@ while child_pids:
 
     exit_status = os.WEXITSTATUS(status)
 
-    print(f"Gru[{gru_pid}]: process terminated. PID {pid}. Exit status {exit_status}.")
+    print(f"Gru[{gru_pid}]: process terminated. PID {pid}. Exit status {exit_status}.", flush=True)
 
     if exit_status != 0:
         new_child_pid = os.fork()
@@ -42,9 +42,9 @@ while child_pids:
             os.execve('./minion', ['./minion', str(sleep_time)], os.environ)
         else:
             child_pids.append(new_child_pid)
-            print(f"Gru[{gru_pid}]: process created. PID {new_child_pid}.")
+            print(f"Gru[{gru_pid}]: process created. PID {new_child_pid}.", flush=True)
     else:
         child_pids.remove(pid)
 
-print("All child processes terminated successfully.")
+print("All child processes terminated successfully.", flush=True)
 os._exit(0)
