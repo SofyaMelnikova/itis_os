@@ -1,0 +1,19 @@
+#! /usr/bin/python3
+
+import os
+import sys
+import time
+import random
+
+pid = os.getpid()
+ppid = os.getppid()
+print(f"Minion[{pid}]: created. Parent PID {ppid}.")
+
+sleep_time = int(sys.argv[1])
+time.sleep(sleep_time)
+
+exit_status = random.choice([0, 1])
+
+print(f"Child[{pid}]: before terminated. Parent PID {ppid}. Exit status {exit_status}.")
+
+os._exit(exit_status)
