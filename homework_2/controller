@@ -1,0 +1,65 @@
+#! /usr/bin/python3
+
+import os
+import sys
+import signal
+import random
+
+count = 0
+
+def handleSigUsr1(signum, frame):
+    print(f"Processed {count} lines", file=sys.stderr)
+
+signal.signal(signal.SIGUSR1, handleSigUsr1)
+
+pipe_a = os.pipe()
+pipe_b = os.pipe()
+pipe_c = os.pipe()
+
+pid1 = os.fork()
+if pid1 == 0:
+    os.dup2(pipe_a[1], sys.stdout.fileno())
+    os.close(pipe_a[1])
+    os.close(pipe_a[0])
+    os.close(pipe_b[0])
+    os.close(pipe_b[1])
+    os.close(pipe_c[0])
+    os.close(pipe_c[1])
+    n = random.randint(120, 180)
+    os.execve('./generator', ['./generator', str(n)], os.environ)
+
+pid2 = os.fork()
+if pid2 == 0:
+    os.dup2(pipe_b[0], sys.stdin.fileno())
+    os.close(pipe_b[0])
+    os.dup2(pipe_c[1], sys.stdout.fileno())
+    os.close(pipe_c[1])
+    os.close(pipe_a[0])
+    os.close(pipe_a[1])
+    os.close(pipe_b[1])
+    os.close(pipe_c[0])
+    os.execve('/usr/bin/bc', ['/usr/bin/bc'], os.environ)
+
+os.close(pipe_a[1])
+os.close(pipe_b[0])
+os.close(pipe_c[1])
+
+while True:
+    expression = os.read(pipe_a[0], 1024).decode().strip()
+    if not expression:
+        break
+    os.write(pipe_b[1], expression.encode())
+    os.write(pipe_b[1], b'\n')
+    result = os.read(pipe_c[0], 1024).decode().strip()
+    print(f"{expression} = {result}")
+    # sys.stdout.flush()
+    count += 1
+
+os.close(pipe_a[0])
+os.close(pipe_b[1])
+os.close(pipe_c[0])
+
+pid, status = os.wait()
+pid, status = os.wait()
+
+os._exit(0)

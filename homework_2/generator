@@ -1,0 +1,22 @@
+#! /usr/bin/python3
+
+import sys
+import random
+import time
+import os
+
+n = int(sys.argv[1])
+
+if not (120 <= n <= 180):
+    os._exit(1)
+
+for _ in range(n):
+    x = random.randint(1, 9)
+    y = random.randint(1, 9)
+    op = random.choice(['+', '-', '*', '/'])
+    expression = f"{x} {op} {y}"
+    print(expression)
+    sys.stdout.flush()
+    time.sleep(1)
+
+os._exit(0)
