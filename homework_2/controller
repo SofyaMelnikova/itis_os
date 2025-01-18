@@ -52,7 +52,6 @@ while True:
     os.write(pipe_b[1], b'\n')
     result = os.read(pipe_c[0], 1024).decode().strip()
     print(f"{expression} = {result}")
-    # sys.stdout.flush()
     count += 1
 
 os.close(pipe_a[0])
